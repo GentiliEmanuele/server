@@ -36,7 +36,6 @@ func playOnServer(ip, port string) {
 	}
 	port = fmt.Sprintf(":%s", port)
 	lis, err := net.Listen("tcp", port)
-	fmt.Printf("Server listen on the port %s%s\n", ip, port)
 	go server.Accept(lis)
 }
 
