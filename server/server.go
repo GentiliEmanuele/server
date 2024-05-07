@@ -19,6 +19,15 @@ func main() {
 
 func playOnServer(ip, port string) {
 	var flag bool
+	//Wait request from load balancer
+	server := rpc.NewServer()
+	err := server.RegisterName("Server", services.NewServer())
+	if err != nil {
+		fmt.Printf("An error occured %s\n", err)
+	}
+	dotPort := fmt.Sprintf(":%s", port)
+	lis, err := net.Listen("tcp", dotPort)
+	go server.Accept(lis)
 	registryAddress := os.Getenv("REGISTRY")
 	registry, err := rpc.Dial("tcp", registryAddress)
 	if err != nil {
@@ -28,15 +37,6 @@ func playOnServer(ip, port string) {
 	if err != nil {
 		fmt.Printf("An error occured %s\n", err)
 	}
-	//Wait request from load balancer
-	server := rpc.NewServer()
-	err = server.RegisterName("Server", services.NewServer())
-	if err != nil {
-		fmt.Printf("An error occured %s\n", err)
-	}
-	port = fmt.Sprintf(":%s", port)
-	lis, err := net.Listen("tcp", port)
-	go server.Accept(lis)
 }
 
 func GetOutboundIP() net.IP {
